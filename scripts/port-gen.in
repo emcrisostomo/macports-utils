@@ -1,0 +1,215 @@
+#!@ZSH_CMD@
+# -*- vim:fenc=utf-8:et:sw=2:ts=2:sts=2
+#
+# Copyright (c) 2018 Enrico M. Crisostomo
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+#  * Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+#  * Neither the name of the <organization> nor the names of its contributors
+#    may be used to endorse or promote products derived from this software
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+setopt local_options
+setopt local_traps
+unsetopt glob_subst
+unsetopt bash_rematch
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+PROGNAME=${0:t}
+PROGDIR=${0:h}
+BUG_REPORT=@PACKAGE_BUGREPORT@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+typeset -i ARGS_PROCESSED=0
+typeset -i USE_CACHED_FILES=1
+typeset -a help_flag
+typeset -a url_flag
+typeset -a verbose_flag
+typeset -a version_flag
+typeset -i VERBOSE=0
+REQUIRED_PROGS=( openssl wget )
+typeset -a git_repos_dir
+DISTFILE_URL=
+
+for p in ${REQUIRED_PROGS}
+do
+  command -v ${p} > /dev/null 2>&1 ||
+    {
+      >&2 print -- Cannot find required program: ${p}
+      exit 1
+    }
+done
+
+print_version()
+{
+  print -- "${PROGNAME} ${PACKAGE_VERSION}"
+  print -- "Copyright (C) 2018 Enrico M. Crisostomo"
+  print -- "License: BSD-3-Clause <https://opensource.org/licenses/BSD-3-Clause/>."
+  print -- "This is free software: you are free to change and redistribute it."
+  print -- "There is NO WARRANTY, to the extent permitted by law."
+  print
+  print -- "Written by Enrico M. Crisostomo"
+}
+
+print_usage()
+{
+  print -- "${PROGNAME}"
+  print
+  print -- "Usage:"
+  print -- "${PROGNAME} (path)*"
+  print
+  print -- "Options:"
+  print -- " -h, --help     Print this message."
+  print -- " -u, --url      Use the specified url."
+  print -- " -v, --verbose  Print verbose output."
+  print -- "     --version  Print the program version."
+}
+
+parse_opts()
+{
+  while getopts ":" opt
+  do
+    case $opt in
+      \?)
+        >&2 print -- Invalid option -${OPTARG}.
+        exit 1
+        ;;
+    esac
+  done
+
+  ARGS_PROCESSED=$((OPTIND - 1))
+}
+
+function set_missing_default_variables()
+{
+  : ${GITHUB_AUTHOR=}
+  : ${PORT_NAME=}
+  : ${PORT_VERSION=}
+  : ${GITHUB_REPO_URL=}
+  : ${CHECKSUM_MD5=md5_checksum}
+  : ${CHECKSUM_RMD160=rmd160_checksum}
+  : ${CHECKSUM_SHA256=sha256_checksum}
+  : ${CHECKSUM_SIZE=size_checksum}
+}
+
+function calculate_checksums()
+{
+  local distfile=$1
+
+  CHECKSUM_MD5=$(openssl md5 $1 | awk '{ print $NF; }')
+  CHECKSUM_RMD160=$(openssl rmd160 $1 | awk '{ print $NF; }')
+  CHECKSUM_SHA256=$(openssl sha256 $1 | awk '{ print $NF; }')
+  CHECKSUM_SIZE=$(LC_ALL=C ls -l ${1} | awk '{ print $5; }')
+}
+
+function download_archive()
+{
+  if (( ${USE_CACHED_FILES} == 0 )) || [[ ! -f ${DISTFILE_URL:t} ]]
+  then
+    if ! wget ${DISTFILE_URL}
+    then
+      set_missing_default_variables
+      return
+    fi
+  fi
+
+  calculate_checksums ${DISTFILE_URL:t}
+}
+
+# main
+zparseopts -D \
+           h=help_flag    -help=help_flag         \
+                          -no-cache=no_cache_flag \
+           u:=url         -url:=url_flag          \
+           v=verbose_flag -verbose=verbose_flag   \
+                          -version=version_flag
+
+if (( ${+help_flag[1]} > 0 ))
+then
+  print_usage
+  exit 0
+fi
+
+if (( ${#no_cache} > 0 ))
+then
+  USE_CACHED_FILES=0
+fi
+
+if (( ${#url_flag} > 0))
+then
+  DISTFILE_URL=${url_flag[2]}
+fi
+
+if (( ${+verbose_flag[1]} > 0 ))
+then
+  VERBOSE=1
+fi
+
+if (( ${+version_flag[1]} > 0 ))
+then
+  print_version
+  exit 0
+fi
+
+parse_opts $* && shift ${ARGS_PROCESSED}
+
+(( $# == 0 )) && set -- .
+
+if (( ${VERBOSE} > 0 ))
+then
+  verboseprint=print
+else
+  verboseprint=:
+fi
+
+GITHUB_REGEX=https://github.com/([^/]+)/([^/]+)/releases/download/([^/]+)/([^/]+)
+# Main
+if [[ ! ${DISTFILE_URL} =~ ${GITHUB_REGEX} ]]
+then
+  >&2 print "The URL doesn't match a GitHub release archive."
+  exit 1
+fi
+
+GITHUB_AUTHOR=${match[1]}
+PORT_NAME=${match[2]}
+PORT_VERSION=${match[3]}
+GITHUB_REPO_URL=https://github.com/${GITHUB_AUTHOR}/${PORT_NAME}
+
+download_archive ${DISTFILE_URL}
+
+GITHUB_TEMPLATE=$(< github.in)
+print -- ${(e)GITHUB_TEMPLATE}
+
+# https://github.com/emcrisostomo/semver-utils/releases/download/1.1.3/semver-utils-1.1.3.tar.gz
+
+# Local variables:
+# coding: utf-8
+# mode: sh
+# eval: (sh-set-shell "zsh")
+# tab-width: 2
+# indent-tabs-mode: nil
+# sh-basic-offset: 2
+# sh-indentation: 2
+# End:

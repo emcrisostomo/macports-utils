@@ -1,0 +1,7 @@
+NEWS
+****
+
+New in 0.1.0:
+
+  * Create a Portfile using a GitHub release URI.
+
