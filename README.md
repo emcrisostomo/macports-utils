@@ -69,6 +69,7 @@ Bug reports can be sent directly to the authors.
 -----
 
 Copyright (c) 2018 Enrico Maria Crisostomo
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
