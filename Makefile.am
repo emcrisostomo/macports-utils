@@ -24,9 +24,9 @@ CLEANFILES   = $(bin_SCRIPTS)
 nobase_dist_pkgdata_DATA = templates/github.in
 
 edit = sed \
-	-e 's|@bindir\[@\]|$(bindir)|g' \
-	-e 's|@pkgdatadir\[@\]|$(pkgdatadir)|g' \
-	-e 's|@prefix\[@\]|$(prefix)|g'
+	-e 's|@bindir[@]|$(bindir)|g' \
+	-e 's|@pkgdatadir[@]|$(pkgdatadir)|g' \
+	-e 's|@prefix[@]|$(prefix)|g'
 
 scripts/port-gen: Makefile
 	rm -f $@ $@.tmp
