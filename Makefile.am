@@ -19,7 +19,9 @@ dist_doc_DATA  = README.md README.gnu-build-system
 dist_doc_DATA += AUTHORS CONTRIBUTING.md COPYING LICENSE NEWS
 
 bin_SCRIPTS  = scripts/port-gen
-nobase_pkgdata_DATA = templates/github.in
+CLEANFILES   = $(bin_SCRIPTS)
+
+nobase_dist_pkgdata_DATA = templates/github.in
 
 edit = sed \
 				-e 's|@bindir\[@\]|$(bindir)|g' \
