@@ -5,7 +5,7 @@ macports-utils
 
 `macports-utils` contains the following utilities:
 
-  * `portfile-gen`: an utility to create a Portfile from a template.
+  * `port-gen`: an utility to create a Portfile from a template.
 
 Prerequisites
 -------------
@@ -44,13 +44,13 @@ install this package.
 Usage
 -----
 
-portfile-gen
-------------
+port-gen
+--------
 
 The syntax to invoke `potfile-gen` is the following:
 
-    $ portfile-gen -h
-    $ portfile-gen (-v)? (--no-cache)? -u distfile_url
+    $ port-gen -h
+    $ port-gen (-v)? (--no-cache)? -u distfile_url
     $ port-gen --version
 
 The available options are:
