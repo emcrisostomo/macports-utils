@@ -114,6 +114,7 @@ version.texi
 # Template files
 Doxyfile
 scripts/port-gen
+scripts/port-gen.in
 
 # Output files
 
