@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg?style=flat)](https://github.com/emcrisostomo/macports-utils/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/license-BSD--3.0--Clause-blue.svg?style=flat)](https://github.com/emcrisostomo/macports-utils/blob/master/LICENSE)
 
 macports-utils
 ==============
