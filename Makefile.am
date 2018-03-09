@@ -19,6 +19,19 @@ dist_doc_DATA  = README.md README.gnu-build-system
 dist_doc_DATA += AUTHORS CONTRIBUTING.md COPYING LICENSE NEWS
 
 bin_SCRIPTS  = scripts/port-gen
+nobase_pkgdata_DATA = templates/github.in
+
+edit = sed \
+				-e 's|@bindir\[@\]|$(bindir)|g' \
+				-e 's|@pkgdatadir\[@\]|$(pkgdatadir)|g' \
+				-e 's|@prefix\[@\]|$(prefix)|g'
+
+scripts/port-gen: Makefile
+	rm -f $@ $@.tmp
+	$(edit) $@.in >$@.tmp
+	mv $@.tmp $@
+
+scripts/port-gen: scripts/port-gen.in
 
 dist-hook:
 # The recipe cannot assume a file in $(distdir) is writable.

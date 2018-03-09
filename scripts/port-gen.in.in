@@ -42,6 +42,7 @@ PROGNAME=${0:t}
 PROGDIR=${0:h}
 BUG_REPORT=@PACKAGE_BUGREPORT@
 PACKAGE_VERSION=@PACKAGE_VERSION@
+TEMPLATES_DIR=@pkgdatadir[@]/templates
 typeset -r GITHUB_REGEX=https://github.com/([^/]+)/([^/]+)/releases/download/([^/]+)/([^/]+)
 typeset -i ARGS_PROCESSED=0
 typeset -i USE_CACHED_FILES=1
@@ -197,7 +198,7 @@ DISTFILE_NAME=${DISTFILE_URL:t}
 parse_github_url ${DISTFILE_URL}
 download_archive ${DISTFILE_URL}
 
-GITHUB_TEMPLATE=$(< github.in)
+GITHUB_TEMPLATE=$(< ${TEMPLATES_DIR}/github.in)
 print -- ${(e)GITHUB_TEMPLATE}
 
 # Local variables:
