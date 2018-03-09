@@ -1,4 +1,4 @@
-#!@ZSH_CMD@
+#!/usr/bin/env zsh
 # -*- vim:fenc=utf-8:et:sw=2:ts=2:sts=2
 #
 # Copyright (c) 2018 Enrico M. Crisostomo
