@@ -51,7 +51,7 @@ typeset -a url_flag
 typeset -a verbose_flag
 typeset -a version_flag
 VERBOSE_PRINT=:
-REQUIRED_PROGS=( openssl wget )
+REQUIRED_PROGS=( curl openssl )
 typeset -a git_repos_dir
 DISTFILE_URL=
 

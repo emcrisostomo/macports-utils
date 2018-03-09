@@ -33,13 +33,13 @@ AM_INIT_AUTOMAKE([-Wall -Werror gnu subdir-objects])
 AM_SILENT_RULES([yes])
 
 # Checks for programs.
-AC_PATH_PROG([ZSH_CMD],  [zsh],  [no])
 AC_PATH_PROG([GIT_CMD],  [git],  [no])
-AC_PATH_PROG([WGET_CMD], [wget], [no])
+AC_PATH_PROG([CURL_CMD], [curl], [no])
+AC_PATH_PROG([ZSH_CMD],  [zsh],  [no])
 
-AS_VAR_IF([ZSH_CMD],  [no], [AC_MSG_ERROR([zsh is required.])],  [])
 AS_VAR_IF([GIT_CMD],  [no], [AC_MSG_ERROR([git is required.])],  [])
-AS_VAR_IF([WGET_CMD], [no], [AC_MSG_ERROR([wget is required.])], [])
+AS_VAR_IF([CURL_CMD], [no], [AC_MSG_ERROR([curl is required.])], [])
+AS_VAR_IF([ZSH_CMD],  [no], [AC_MSG_ERROR([zsh is required.])],  [])
 
 # Checks for libraries.
 
