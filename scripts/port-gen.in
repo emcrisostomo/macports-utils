@@ -168,15 +168,15 @@ then
   exit 0
 fi
 
-(( ${#no_cache_flag} > 0 ))   && USE_CACHED_FILES=0
-(( ${#url_flag} > 0 ))        && DISTFILE_URL=${url_flag[2]}
-(( ${+verbose_flag[1]} > 0 )) && VERBOSE_PRINT=print
-
 if (( ${+version_flag[1]} > 0 ))
 then
   print_version
   exit 0
 fi
+
+(( ${#no_cache_flag} > 0 ))   && USE_CACHED_FILES=0
+(( ${#url_flag} > 0 ))        && DISTFILE_URL=${url_flag[2]}
+(( ${+verbose_flag[1]} > 0 )) && VERBOSE_PRINT=print
 
 parse_opts $* && shift ${ARGS_PROCESSED}
 

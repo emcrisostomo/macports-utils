@@ -1,0 +1,25 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+
+github.setup        ${GITHUB_AUTHOR} ${PORT_NAME} ${PORT_VERSION}
+github.tarball_from releases
+
+categories          changeme
+platforms           darwin
+license             GPL-3
+
+maintainers         gmail.com:enrico.m.crisostomo \\\\
+                    openmaintainer
+description         Add a short port description here.
+long_description    Add a long port description here.
+
+homepage            ${GITHUB_REPO_URL}
+
+checksums           md5    ${CHECKSUM_MD5} \\\\
+                    rmd160 ${CHECKSUM_RMD160} \\\\
+                    sha256 ${CHECKSUM_SHA256} \\\\
+                    size   ${CHECKSUM_SIZE}
+
+livecheck.url       \${github.homepage}/releases/latest
