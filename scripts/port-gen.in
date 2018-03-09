@@ -42,13 +42,15 @@ PROGNAME=${0:t}
 PROGDIR=${0:h}
 BUG_REPORT=@PACKAGE_BUGREPORT@
 PACKAGE_VERSION=@PACKAGE_VERSION@
+typeset -r GITHUB_REGEX=https://github.com/([^/]+)/([^/]+)/releases/download/([^/]+)/([^/]+)
 typeset -i ARGS_PROCESSED=0
 typeset -i USE_CACHED_FILES=1
 typeset -a help_flag
+typeset -a no_cache_flag
 typeset -a url_flag
 typeset -a verbose_flag
 typeset -a version_flag
-typeset -i VERBOSE=0
+VERBOSE_PRINT=:
 REQUIRED_PROGS=( openssl wget )
 typeset -a git_repos_dir
 DISTFILE_URL=
@@ -128,21 +130,35 @@ function download_archive()
 {
   if (( ${USE_CACHED_FILES} == 0 )) || [[ ! -f ${DISTFILE_URL:t} ]]
   then
-    if ! wget ${DISTFILE_URL}
+    if ! curl --location ${DISTFILE_URL} --output ${DISTFILE_NAME}
     then
       set_missing_default_variables
       return
     fi
   fi
 
-  calculate_checksums ${DISTFILE_URL:t}
+  calculate_checksums ${DISTFILE_NAME}
+}
+
+function parse_github_url()
+{
+  if [[ ! ${DISTFILE_URL} =~ ${GITHUB_REGEX} ]]
+  then
+    >&2 print "The URL doesn't match a GitHub release archive."
+    exit 1
+  fi
+
+  GITHUB_AUTHOR=${match[1]}
+  PORT_NAME=${match[2]}
+  PORT_VERSION=${match[3]}
+  GITHUB_REPO_URL=https://github.com/${GITHUB_AUTHOR}/${PORT_NAME}
 }
 
 # main
 zparseopts -D \
            h=help_flag    -help=help_flag         \
                           -no-cache=no_cache_flag \
-           u:=url         -url:=url_flag          \
+           u:=url_flag    -url:=url_flag          \
            v=verbose_flag -verbose=verbose_flag   \
                           -version=version_flag
 
@@ -152,20 +168,9 @@ then
   exit 0
 fi
 
-if (( ${#no_cache} > 0 ))
-then
-  USE_CACHED_FILES=0
-fi
-
-if (( ${#url_flag} > 0))
-then
-  DISTFILE_URL=${url_flag[2]}
-fi
-
-if (( ${+verbose_flag[1]} > 0 ))
-then
-  VERBOSE=1
-fi
+(( ${#no_cache_flag} > 0 ))   && USE_CACHED_FILES=0
+(( ${#url_flag} > 0 ))        && DISTFILE_URL=${url_flag[2]}
+(( ${+verbose_flag[1]} > 0 )) && VERBOSE_PRINT=print
 
 if (( ${+version_flag[1]} > 0 ))
 then
@@ -175,34 +180,25 @@ fi
 
 parse_opts $* && shift ${ARGS_PROCESSED}
 
-(( $# == 0 )) && set -- .
+(( $# == 0 )) ||
+  {
+    >&2 print "No arguments allowed."
+    exit 2
+  }
 
-if (( ${VERBOSE} > 0 ))
-then
-  verboseprint=print
-else
-  verboseprint=:
-fi
+[[ -n ${DISTFILE_URL} ]] ||
+  {
+    echo ${DISTFILE_URL}
+    >&2 print "Missing distfile URL."
+    exit 2
+  }
 
-GITHUB_REGEX=https://github.com/([^/]+)/([^/]+)/releases/download/([^/]+)/([^/]+)
-# Main
-if [[ ! ${DISTFILE_URL} =~ ${GITHUB_REGEX} ]]
-then
-  >&2 print "The URL doesn't match a GitHub release archive."
-  exit 1
-fi
-
-GITHUB_AUTHOR=${match[1]}
-PORT_NAME=${match[2]}
-PORT_VERSION=${match[3]}
-GITHUB_REPO_URL=https://github.com/${GITHUB_AUTHOR}/${PORT_NAME}
-
+DISTFILE_NAME=${DISTFILE_URL:t}
+parse_github_url ${DISTFILE_URL}
 download_archive ${DISTFILE_URL}
 
 GITHUB_TEMPLATE=$(< github.in)
 print -- ${(e)GITHUB_TEMPLATE}
-
-# https://github.com/emcrisostomo/semver-utils/releases/download/1.1.3/semver-utils-1.1.3.tar.gz
 
 # Local variables:
 # coding: utf-8
