@@ -10,7 +10,7 @@ categories          changeme
 platforms           darwin
 license             GPL-3
 
-maintainers         gmail.com:enrico.m.crisostomo \\\\
+maintainers         obfuscated-maintainer-mail \\\\
                     openmaintainer
 description         Add a short port description here.
 long_description    Add a long port description here.
