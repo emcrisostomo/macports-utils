@@ -27,6 +27,8 @@ PROGNAME=${0:t}
 BUG_REPORT=@PACKAGE_BUGREPORT@
 PACKAGE_VERSION=@PACKAGE_VERSION@
 
+typeset -a help_flag
+typeset -a version_flag
 typeset -a required_programs=( openssl )
 
 mp_check_required_programs()
@@ -60,7 +62,8 @@ mp_print_usage()
   print -- "${PROGNAME} [-h]"
   print
   print -- "Options:"
-  print -- " -h         Show this help."
+  print -- " -h             Show this help."
+  print -- "     --version  Print the program version."
   print
   print -- "Report bugs to <https://github.com/emcrisostomo/macports-utils/issues>."
   print -- "${PROGNAME} home page: <https://github.com/emcrisostomo/macports-utils>."
@@ -68,23 +71,11 @@ mp_print_usage()
 
 mp_parse_opts()
 {
-  while getopts ":hv" opt
+  while getopts ":" opt
   do
     case $opt in
-      h)
-        mp_print_usage
-        exit 0
-        ;;
-      v)
-        mp_print_version
-        exit 0
-        ;;
       \?)
         >&2 print -- "Invalid option -${OPTARG}."
-        exit 1
-        ;;
-      :)
-        >&2 print -- "Missing argument to -${OPTARG}."
         exit 1
         ;;
     esac
@@ -119,6 +110,22 @@ mp_calculate_checksums()
 }
 
 # Main
+zparseopts -D \
+           h=help_flag    -help=help_flag         \
+                          -version=version_flag
+
+if (( ${+help_flag[1]} > 0 ))
+then
+  mp_print_usage
+  exit 0
+fi
+
+if (( ${+version_flag[1]} > 0 ))
+then
+  mp_print_version
+  exit 0
+fi
+
 mp_parse_opts $* && shift ${ARGS_PROCESSED}
 
 mp_health_checks $*

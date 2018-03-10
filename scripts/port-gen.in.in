@@ -94,7 +94,7 @@ print_usage()
   print
   print -- "See the man page for more information."
   print
-  print -- "Report bugs to <${BUG_REPORT}>."
+  print -- "Report bugs to <https://github.com/emcrisostomo/macports-utils/issues>."
   print -- "${PROGNAME} home page: <https://github.com/emcrisostomo/macports-utils>."
 }
 
