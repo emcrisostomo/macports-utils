@@ -1,6 +1,11 @@
 NEWS
 ****
 
+New in 0.2.0:
+
+  * Add macports-checksum to calculate the MD5, RMD160, SHA256 and the size of a
+    file.
+
 New in 0.1.0:
 
   * Create a Portfile using a GitHub release URI.
