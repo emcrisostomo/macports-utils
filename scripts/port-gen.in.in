@@ -78,16 +78,24 @@ print_version()
 
 print_usage()
 {
-  print -- "${PROGNAME}"
+  print -- "${PROGNAME} ${PACKAGE_VERSION}"
   print
   print -- "Usage:"
-  print -- "${PROGNAME} (path)*"
+  print -- "${PROGNAME} (options)* (path)*"
+  print -- "${PROGNAME} -h"
+  print -- "${PROGNAME} -v"
   print
   print -- "Options:"
   print -- " -h, --help     Print this message."
+  print -- "     --no-cache Always download the distfile."
   print -- " -u, --url      Use the specified url."
   print -- " -v, --verbose  Print verbose output."
   print -- "     --version  Print the program version."
+  print
+  print -- "See the man page for more information."
+  print
+  print -- "Report bugs to <${BUG_REPORT}>."
+  print -- "${PROGNAME} home page: <https://github.com/emcrisostomo/macports-utils>."
 }
 
 parse_opts()
