@@ -116,10 +116,17 @@ mp_calculate_checksums()
       return 1
     }
 
-  openssl md5 ${1}
-  openssl rmd160 ${1}
-  openssl sha256 ${1}
-  LC_ALL=C ls -l ${1} | awk '{ print "SIZE('${1}')= ", $5; }'
+  local CHECKSUM_MD5=$(openssl md5 ${1} | awk '{ print $NF; }')
+  local CHECKSUM_RMD160=$(openssl rmd160 ${1} | awk '{ print $NF; }')
+  local CHECKSUM_SHA256=$(openssl sha256 ${1} | awk '{ print $NF; }')
+  local CHECKSUM_SIZE=$(LC_ALL=C ls -l ${1} | awk '{ print $5; }')
+
+  cat <<EOF
+checksums           md5    ${CHECKSUM_MD5} \\
+                    rmd160 ${CHECKSUM_RMD160} \\
+                    sha256 ${CHECKSUM_SHA256} \\
+                    size   ${CHECKSUM_SIZE}
+EOF
 }
 
 # Main
