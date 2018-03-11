@@ -21,7 +21,8 @@ dist_doc_DATA += AUTHORS CONTRIBUTING.md COPYING LICENSE NEWS
 bin_SCRIPTS  = scripts/macports-checksums scripts/port-gen
 CLEANFILES   = $(bin_SCRIPTS)
 
-nobase_dist_pkgdata_DATA = templates/github.in
+nobase_dist_pkgdata_DATA  = templates/github.in
+nobase_dist_pkgdata_DATA += templates/python.in
 
 edit = sed \
 	-e 's|@bindir[@]|$(bindir)|g' \

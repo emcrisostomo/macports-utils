@@ -44,6 +44,7 @@ BUG_REPORT=@PACKAGE_BUGREPORT@
 PACKAGE_VERSION=@PACKAGE_VERSION@
 TEMPLATES_DIR=@pkgdatadir@/templates
 typeset -r GITHUB_REGEX=https://github.com/([^/]+)/([^/]+)/releases/download/([^/]+)/([^/]+)
+typeset -r PYHOSTED_REGEX=https://files.pythonhosted.org/packages/source/([^/])/([^/]+)/([^/]+)
 typeset -i ARGS_PROCESSED=0
 typeset -i USE_CACHED_FILES=1
 typeset -a help_flag
@@ -149,6 +150,18 @@ function download_archive()
   calculate_checksums ${DISTFILE_NAME}
 }
 
+function find_url_type()
+{
+  local url=$1
+
+  [[ ${url} == "https://github.com/"* ]] && print github && return;
+  [[ ${url} == "https://pypi.python.org/packages/"* ]] && print pypi && return
+  [[ ${url} == "https://files.pythonhosted.org/packages/source/"* ]] && print pyhosted && return
+
+  print unknown
+  return
+}
+
 function parse_github_url()
 {
   if [[ ! ${DISTFILE_URL} =~ ${GITHUB_REGEX} ]]
@@ -163,7 +176,70 @@ function parse_github_url()
   GITHUB_REPO_URL=https://github.com/${GITHUB_AUTHOR}/${PORT_NAME}
 }
 
+function process_github_url()
+{
+  parse_github_url ${DISTFILE_URL}
+  download_archive ${DISTFILE_URL}
+
+  GITHUB_TEMPLATE=$(< ${TEMPLATES_DIR}/github.in)
+  print -- ${(e)GITHUB_TEMPLATE}
+}
+
+function parse_pyhosted_url()
+{
+  if [[ ! $1 =~ ${PYHOSTED_REGEX} ]]
+  then
+    >&2 print "The URL doesn't match a pythonhosted.org package."
+    exit 1
+  fi
+
+  local BUCKET_LETTER=${match[1]}
+  PYPI_NAME=${match[2]}
+  local DISTFILE_TAIL=${match[3]}
+
+  [[ ${BUCKET_LETTER} == ${PYPI_NAME[1]} ]] ||
+    {
+      >&2 print "The URL doesn't match a pythonhosted.org package."
+      exit 2
+    }
+
+  [[ ${DISTFILE_TAIL} == ${PYPI_NAME}-* ]] ||
+    {
+      >&2 print "The URL doesn't match a pythonhosted.org package."
+      exit 3
+    }
+
+  [[ ${DISTFILE_TAIL} =~ ${PYPI_NAME}-(.*)\\.tar\\.gz ]] ||
+    {
+      >&2 print "Cannot extract version from pythonhosted.org package URL."
+      exit 4
+    }
+
+  PORT_NAME=py-${PYPI_NAME}
+  PORT_VERSION=${match[1]}
+}
+
+function process_pyhosted_url()
+{
+  local url=$1
+
+  parse_pyhosted_url ${url}
+  download_archive ${DISTFILE_URL}
+
+  local PYTHON_TEMPLATE=$(< ${TEMPLATES_DIR}/python.in)
+  print -- ${(e)PYTHON_TEMPLATE}
+
+}
+
 # main
+# syntax:
+#
+# GitHub release:
+# --url https://github.com/emcrisostomo/semver-utils/releases/download/1.1.3/semver-utils-1.1.3.tar.gz
+# PyPI:
+# --url https://pypi.python.org/packages/d6/90/2c2998b06f3feef03ef4459c459cca5b8a788d246e8d8bf23f3c137fe2e4/boto3-1.6.6.tar.gz#md5=e94ac04ef5aea425cc9ab710c59fb1c3
+# --url https://files.pythonhosted.org/packages/source/b/boto3/boto3-1.6.3.tar.gz
+#
 zparseopts -D \
            h=help_flag    -help=help_flag         \
                           -no-cache=no_cache_flag \
@@ -203,11 +279,16 @@ parse_opts $* && shift ${ARGS_PROCESSED}
   }
 
 DISTFILE_NAME=${DISTFILE_URL:t}
-parse_github_url ${DISTFILE_URL}
-download_archive ${DISTFILE_URL}
 
-GITHUB_TEMPLATE=$(< ${TEMPLATES_DIR}/github.in)
-print -- ${(e)GITHUB_TEMPLATE}
+process_url=process_$(find_url_type ${DISTFILE_URL})_url
+
+if ! whence ${process_url} > /dev/null
+then
+  >&2 print "Unprocessable URL."
+  exit 2
+fi
+
+${process_url} ${DISTFILE_URL}
 
 # Local variables:
 # coding: utf-8
