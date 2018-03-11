@@ -3,7 +3,7 @@ NEWS
 
 New in 0.4.0:
 
-  * Let macports-checksum output a valid checksums section.
+  * Let macports-checksums output a valid checksums section.
 
 New in 0.3.0:
 
