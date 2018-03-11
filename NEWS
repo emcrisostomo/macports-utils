@@ -1,6 +1,10 @@
 NEWS
 ****
 
+New in 0.3.0:
+
+  * Create a Portfile using a pythonhosted.org package URI.
+
 New in 0.2.0:
 
   * Add macports-checksum to calculate the MD5, the RMD160 and the SHA256
