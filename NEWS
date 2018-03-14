@@ -1,6 +1,10 @@
 NEWS
 ****
 
+New in 0.5.0:
+
+  * Extract latest release information from a GitHub repository URL.
+
 New in 0.4.0:
 
   * Let macports-checksums output a valid checksums section.
