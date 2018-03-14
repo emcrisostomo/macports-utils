@@ -190,7 +190,7 @@ function get_github_description
 
   local description=$(curl \
                         -s \
-                        https://api.github.com/repos/emcrisostomo/fswatch | \
+                        ${repo_url} | \
                         jq -r '.description')
   local folded_description=$(print -r -- ${description} | fold -w 64 -s)
   local -a arr_description
