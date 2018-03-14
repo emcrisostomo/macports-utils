@@ -43,7 +43,8 @@ PROGDIR=${0:h}
 BUG_REPORT=@PACKAGE_BUGREPORT@
 PACKAGE_VERSION=@PACKAGE_VERSION@
 TEMPLATES_DIR=@pkgdatadir@/templates
-typeset -r GITHUB_REGEX=https://github.com/([^/]+)/([^/]+)/releases/download/([^/]+)/([^/]+)
+typeset -r GITHUB_RELEASE_TARBALL_REGEX=https://github.com/([^/]+)/([^/]+)/releases/download/([^/]+)/([^/]+)
+typeset -r GITHUB_PROJECT_REGEX="https://github.com/([^/]+)/([^/]+)/?"
 typeset -r PYHOSTED_REGEX=https://files.pythonhosted.org/packages/source/([^/])/([^/]+)/([^/]+)
 typeset -i ARGS_PROCESSED=0
 typeset -i USE_CACHED_FILES=1
@@ -53,7 +54,7 @@ typeset -a url_flag
 typeset -a verbose_flag
 typeset -a version_flag
 VERBOSE_PRINT=:
-REQUIRED_PROGS=( curl openssl )
+REQUIRED_PROGS=( curl jq openssl )
 typeset -a git_repos_dir
 DISTFILE_URL=
 
@@ -119,6 +120,8 @@ function set_missing_default_variables()
   : ${GITHUB_AUTHOR=}
   : ${PORT_NAME=}
   : ${PORT_VERSION=}
+  : ${PORT_SHORT_DESCRIPTION=Add short description here}
+  : ${PORT_DESCRIPTION=Add description here}
   : ${GITHUB_REPO_URL=}
   : ${CHECKSUM_MD5=md5_checksum}
   : ${CHECKSUM_RMD160=rmd160_checksum}
@@ -138,16 +141,18 @@ function calculate_checksums()
 
 function download_archive()
 {
-  if (( ${USE_CACHED_FILES} == 0 )) || [[ ! -f ${DISTFILE_URL:t} ]]
+  local download_url=$1
+  local download_file_name=${download_url:t}
+
+  if (( ${USE_CACHED_FILES} == 0 )) || [[ ! -f ${download_file_name} ]]
   then
-    if ! curl --location ${DISTFILE_URL} --output ${DISTFILE_NAME}
+    if ! curl -s --location ${1} --output ${download_file_name}
     then
-      set_missing_default_variables
       return
     fi
   fi
 
-  calculate_checksums ${DISTFILE_NAME}
+  calculate_checksums ${download_file_name}
 }
 
 function find_url_type()
@@ -162,25 +167,93 @@ function find_url_type()
   return
 }
 
-function parse_github_url()
+function get_latest_github_version()
 {
-  if [[ ! ${DISTFILE_URL} =~ ${GITHUB_REGEX} ]]
+  local GH_LATEST_VER_API_RESPONSE=$(curl \
+                                       -s \
+                                       https://api.github.com/repos/${GITHUB_AUTHOR}/${PORT_NAME}/releases/latest)
+  local -i GH_NUMBER_OF_ASSETS=$(print -r -- ${GH_LATEST_VER_API_RESPONSE} | jq '.assets | length')
+
+  if (( ${GH_NUMBER_OF_ASSETS} != 1 ))
   then
-    >&2 print "The URL doesn't match a GitHub release archive."
-    exit 1
+    >&2 print "Unsupported: the latest release has multiple assets."
+    exit 5
+  fi
+
+  PORT_VERSION=$(print -r -- ${GH_LATEST_VER_API_RESPONSE} | jq -r '.tag_name')
+  DOWNLOAD_URL=$(print -r -- ${GH_LATEST_VER_API_RESPONSE} | jq -r '.assets[0].browser_download_url')
+}
+
+function get_github_description
+{
+  local repo_url=$1
+
+  local description=$(curl \
+                        -s \
+                        https://api.github.com/repos/emcrisostomo/fswatch | \
+                        jq -r '.description')
+  local folded_description=$(print -r -- ${description} | fold -w 64 -s)
+  local -a arr_description
+  arr_description+=( "" )
+  arr_description+=( ${(f)folded_description} )
+
+  # Extract the short description before adding the final backslash
+  PORT_SHORT_DESCRIPTION=${arr_description[2]}
+
+  for i in $(seq 1 $((${#arr_description} - 1)))
+  do
+    arr_description[i]="${arr_description[i]} \\\\\n"
+  done
+
+  PORT_DESCRIPTION=${arr_description}
+}
+
+function match_github_release_url()
+{
+  if [[ ! ${DISTFILE_URL} =~ ${GITHUB_RELEASE_TARBALL_REGEX} ]]
+  then
+    return 1
   fi
 
   GITHUB_AUTHOR=${match[1]}
   PORT_NAME=${match[2]}
   PORT_VERSION=${match[3]}
   GITHUB_REPO_URL=https://github.com/${GITHUB_AUTHOR}/${PORT_NAME}
+  DOWNLOAD_URL=${DISTFILE_URL}
+
+  get_github_description ${GITHUB_REPO_URL}
+}
+
+function match_github_repo_url()
+{
+  if [[ ! ${DISTFILE_URL} =~ ${GITHUB_PROJECT_REGEX} ]]
+  then
+    return 1
+  fi
+
+  GITHUB_AUTHOR=${match[1]}
+  PORT_NAME=${match[2]}
+  GITHUB_REPO_URL=${DISTFILE_URL}
+
+  get_latest_github_version ${GITHUB_REPO_URL}
+  get_github_description ${GITHUB_REPO_URL}
+}
+
+function parse_github_url()
+{
+  match_github_release_url || match_github_repo_url ||
+    {
+      >&2 print "The URL doesn't match a GitHub release archive."
+      exit 1
+    }
 }
 
 function process_github_url()
 {
   parse_github_url ${DISTFILE_URL}
-  download_archive ${DISTFILE_URL}
-
+  download_archive ${DOWNLOAD_URL}
+  set_missing_default_variables
+  
   GITHUB_TEMPLATE=$(< ${TEMPLATES_DIR}/github.in)
   print -- ${(e)GITHUB_TEMPLATE}
 }
@@ -225,10 +298,10 @@ function process_pyhosted_url()
 
   parse_pyhosted_url ${url}
   download_archive ${DISTFILE_URL}
-
+  set_missing_default_variables
+  
   local PYTHON_TEMPLATE=$(< ${TEMPLATES_DIR}/python.in)
   print -- ${(e)PYTHON_TEMPLATE}
-
 }
 
 # main
@@ -277,8 +350,6 @@ parse_opts $* && shift ${ARGS_PROCESSED}
     >&2 print "Missing distfile URL."
     exit 2
   }
-
-DISTFILE_NAME=${DISTFILE_URL:t}
 
 process_url=process_$(find_url_type ${DISTFILE_URL})_url
 
