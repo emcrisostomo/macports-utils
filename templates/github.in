@@ -11,8 +11,8 @@ platforms           darwin
 license             GPL-3
 maintainers         {@githubname obfuscated-email} openmaintainer
 
-description         Add a short port description here.
-long_description    Add a long port description here.
+description         ${PORT_SHORT_DESCRIPTION}
+long_description    ${PORT_DESCRIPTION}
 
 homepage            ${GITHUB_REPO_URL}
 
