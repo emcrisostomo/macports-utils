@@ -1,6 +1,10 @@
 NEWS
 ****
 
+New in 0.5.1:
+
+  * Fix repository URL used when getting a GitHub repository description.
+
 New in 0.5.0:
 
   * Extract latest release information from a GitHub repository URL.
