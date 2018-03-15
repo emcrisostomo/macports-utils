@@ -1,6 +1,10 @@
 NEWS
 ****
 
+New in 0.5.2:
+
+  * Add functions to build GitHub API URIs.
+
 New in 0.5.1:
 
   * Fix repository URL used when getting a GitHub repository description.
