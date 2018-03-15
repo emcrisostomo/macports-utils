@@ -179,15 +179,30 @@ function get_gh_repo_api_url()
       return 1
     }
 
-  # https://api.github.com/repos/emcrisostomo/fswatch
   printf "https://api.github.com/repos/%s/%s" $1 $2
+}
+
+# Builds a GitHub Repository latest release API URL
+# Parameters:
+#   - repository owner
+#   - repository name
+function get_gh_repo_latest_release_url()
+{
+  (( $# == 2 )) ||
+    {
+      >&2 print -- "Invalid arguments: $*"
+      return 1
+    }
+
+  printf "https://api.github.com/repos/%s/%s/releases/latest" $1 $2
 }
 
 function get_latest_github_version()
 {
+  local gh_latest_release=$(get_gh_repo_latest_release_url ${GITHUB_AUTHOR} ${PORT_NAME})
   local GH_LATEST_VER_API_RESPONSE=$(curl \
                                        -s \
-                                       https://api.github.com/repos/${GITHUB_AUTHOR}/${PORT_NAME}/releases/latest)
+                                       ${gh_latest_release})
   local -i GH_NUMBER_OF_ASSETS=$(print -r -- ${GH_LATEST_VER_API_RESPONSE} | jq '.assets | length')
 
   if (( ${GH_NUMBER_OF_ASSETS} != 1 ))
