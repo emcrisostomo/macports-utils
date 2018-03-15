@@ -167,6 +167,22 @@ function find_url_type()
   return
 }
 
+# Builds a GitHub Repository API URL
+# Parameters:
+#   - repository owner
+#   - repository name
+function get_gh_repo_api_url()
+{
+  (( $# == 2 )) ||
+    {
+      >&2 print -- "Invalid arguments: $*"
+      return 1
+    }
+
+  # https://api.github.com/repos/emcrisostomo/fswatch
+  printf "https://api.github.com/repos/%s/%s" $1 $2
+}
+
 function get_latest_github_version()
 {
   local GH_LATEST_VER_API_RESPONSE=$(curl \
@@ -186,16 +202,29 @@ function get_latest_github_version()
 
 function get_github_description
 {
-  local repo_url=$1
+  (( $# == 2 )) ||
+    {
+      >&2 print "Invalid number of arguments: $#"
+      return 1
+    }
 
+  local gh_author=$1
+  local gh_port_name=$2
+  local gh_repo_url=$(get_gh_repo_api_url ${gh_author} ${gh_port_name})
   local description=$(curl \
                         -s \
-                        ${repo_url} | \
+                        ${gh_repo_url} | \
                         jq -r '.description')
+
   local folded_description=$(print -r -- ${description} | fold -w 64 -s)
   local -a arr_description
   arr_description+=( "" )
   arr_description+=( ${(f)folded_description} )
+
+  for i in ${arr_description}
+  do
+    print -- :: ${i}
+  done
 
   # Extract the short description before adding the final backslash
   PORT_SHORT_DESCRIPTION=${arr_description[2]}
@@ -221,7 +250,7 @@ function match_github_release_url()
   GITHUB_REPO_URL=https://github.com/${GITHUB_AUTHOR}/${PORT_NAME}
   DOWNLOAD_URL=${DISTFILE_URL}
 
-  get_github_description ${GITHUB_REPO_URL}
+  get_github_description ${GITHUB_AUTHOR} ${PORT_NAME}
 }
 
 function match_github_repo_url()
@@ -236,7 +265,7 @@ function match_github_repo_url()
   GITHUB_REPO_URL=${DISTFILE_URL}
 
   get_latest_github_version ${GITHUB_REPO_URL}
-  get_github_description ${GITHUB_REPO_URL}
+  get_github_description ${GITHUB_AUTHOR} ${PORT_NAME}
 }
 
 function parse_github_url()
@@ -253,7 +282,7 @@ function process_github_url()
   parse_github_url ${DISTFILE_URL}
   download_archive ${DOWNLOAD_URL}
   set_missing_default_variables
-  
+
   GITHUB_TEMPLATE=$(< ${TEMPLATES_DIR}/github.in)
   print -- ${(e)GITHUB_TEMPLATE}
 }
@@ -299,7 +328,7 @@ function process_pyhosted_url()
   parse_pyhosted_url ${url}
   download_archive ${DISTFILE_URL}
   set_missing_default_variables
-  
+
   local PYTHON_TEMPLATE=$(< ${TEMPLATES_DIR}/python.in)
   print -- ${(e)PYTHON_TEMPLATE}
 }
