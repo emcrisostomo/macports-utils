@@ -16,8 +16,7 @@ long_description    ${PORT_DESCRIPTION}
 
 homepage            ${GITHUB_REPO_URL}
 
-checksums           md5    ${CHECKSUM_MD5} \\\\
-                    rmd160 ${CHECKSUM_RMD160} \\\\
+checksums           rmd160 ${CHECKSUM_RMD160} \\\\
                     sha256 ${CHECKSUM_SHA256} \\\\
                     size   ${CHECKSUM_SIZE}
 

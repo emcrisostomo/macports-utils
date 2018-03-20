@@ -16,8 +16,7 @@ homepage            https://home.page/
 master_sites        pypi:${PYPI_NAME[1]}/${PYPI_NAME}
 distname            ${PYPI_NAME}-${PORT_VERSION}
 
-checksums           md5    ${CHECKSUM_MD5} \\\\
-                    rmd160 ${CHECKSUM_RMD160} \\\\
+checksums           rmd160 ${CHECKSUM_RMD160} \\\\
                     sha256 ${CHECKSUM_SHA256} \\\\
                     size   ${CHECKSUM_SIZE}
 

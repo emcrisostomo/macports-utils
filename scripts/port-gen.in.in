@@ -123,7 +123,6 @@ function set_missing_default_variables()
   : ${PORT_SHORT_DESCRIPTION=Add short description here}
   : ${PORT_DESCRIPTION=Add description here}
   : ${GITHUB_REPO_URL=}
-  : ${CHECKSUM_MD5=md5_checksum}
   : ${CHECKSUM_RMD160=rmd160_checksum}
   : ${CHECKSUM_SHA256=sha256_checksum}
   : ${CHECKSUM_SIZE=size_checksum}
@@ -133,7 +132,6 @@ function calculate_checksums()
 {
   local distfile=$1
 
-  CHECKSUM_MD5=$(openssl md5 $1 | awk '{ print $NF; }')
   CHECKSUM_RMD160=$(openssl rmd160 $1 | awk '{ print $NF; }')
   CHECKSUM_SHA256=$(openssl sha256 $1 | awk '{ print $NF; }')
   CHECKSUM_SIZE=$(LC_ALL=C ls -l ${1} | awk '{ print $5; }')
