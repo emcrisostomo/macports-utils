@@ -1,6 +1,10 @@
 NEWS
 ****
 
+New in 0.5.3:
+
+  * Remove md5 checksum from templates.
+
 New in 0.5.2:
 
   * Add functions to build GitHub API URIs.
