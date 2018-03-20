@@ -37,6 +37,14 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+PROGNAME=${0:t}
+PROGDIR=${0:h}
+BUG_REPORT=@PACKAGE_BUGREPORT@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+
+typeset -a help_flag
+typeset -a version_flag
+
 typeset -a required_programs=( port )
 
 function check_premissions()
@@ -46,6 +54,36 @@ function check_premissions()
       >&2 print -- This command must be executed with super user privileges.
       exit 1
     }
+}
+
+print_version()
+{
+  print -- "${PROGNAME} ${PACKAGE_VERSION}"
+  print -- "Copyright (C) 2018 Enrico M. Crisostomo"
+  print -- "License: BSD-3-Clause <https://opensource.org/licenses/BSD-3-Clause/>."
+  print -- "This is free software: you are free to change and redistribute it."
+  print -- "There is NO WARRANTY, to the extent permitted by law."
+  print
+  print -- "Written by Enrico M. Crisostomo"
+}
+
+print_usage()
+{
+  print -- "${PROGNAME} ${PACKAGE_VERSION}"
+  print
+  print -- "Usage:"
+  print -- "${PROGNAME}"
+  print -- "${PROGNAME} -h|--help"
+  print -- "${PROGNAME} --version"
+  print
+  print -- "Options:"
+  print -- " -h, --help     Print this message."
+  print -- "     --version  Print the program version."
+  print
+  print -- "See the man page for more information."
+  print
+  print -- "Report bugs to <https://github.com/emcrisostomo/macports-utils/issues>."
+  print -- "${PROGNAME} home page: <https://github.com/emcrisostomo/macports-utils>."
 }
 
 function check_programs()
@@ -61,6 +99,22 @@ function check_programs()
 
 function __main()
 {
+  zparseopts -D \
+           h=help_flag    -help=help_flag         \
+                          -version=version_flag
+
+  if (( ${+help_flag[1]} > 0 ))
+  then
+    print_usage
+    exit 0
+  fi
+
+  if (( ${+version_flag[1]} > 0 ))
+  then
+    print_version
+    exit 0
+  fi
+
   (( $# == 0 )) ||
     {
       >&2 print "Illegal number of arguments: $#"

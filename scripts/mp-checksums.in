@@ -37,8 +37,9 @@ set -o errexit
 set -o nounset
 
 PROGNAME=${0:t}
-BUG_REPORT=enrico.m.crisostomo@gmail.com
-PACKAGE_VERSION=0.5.3
+PROGDIR=${0:h}
+BUG_REPORT=@PACKAGE_BUGREPORT@
+PACKAGE_VERSION=@PACKAGE_VERSION@
 
 typeset -a help_flag
 typeset -a version_flag
