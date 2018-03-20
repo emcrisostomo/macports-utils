@@ -26,6 +26,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([scripts/port-gen.in])
 AC_CONFIG_FILES([scripts/macports-checksums])
+AC_CONFIG_FILES([scripts/macports-upgrade-all])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_MACRO_DIR([m4])
 

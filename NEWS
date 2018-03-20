@@ -1,6 +1,10 @@
 NEWS
 ****
 
+New in 0.6.0:
+
+  * Add macports-upgrade-all.
+
 New in 0.5.3:
 
   * Remove md5 checksum from templates.

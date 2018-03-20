@@ -18,7 +18,9 @@ ACLOCAL_AMFLAGS = -I m4
 dist_doc_DATA  = README.md README.gnu-build-system
 dist_doc_DATA += AUTHORS CONTRIBUTING.md COPYING LICENSE NEWS
 
-bin_SCRIPTS  = scripts/macports-checksums scripts/port-gen
+bin_SCRIPTS  = scripts/macports-checksums
+bin_SCRIPTS += scripts/macports-upgrade-all
+bin_SCRIPTS += scripts/port-gen
 CLEANFILES   = $(bin_SCRIPTS)
 
 nobase_dist_pkgdata_DATA  = templates/github.in
