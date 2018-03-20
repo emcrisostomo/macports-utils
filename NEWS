@@ -3,7 +3,8 @@ NEWS
 
 New in 0.6.0:
 
-  * Add macports-upgrade-all.
+  * Rename to mp-checksums.
+  * Add mp-upgrade-all.
 
 New in 0.5.3:
 

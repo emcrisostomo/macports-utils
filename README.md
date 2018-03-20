@@ -5,6 +5,12 @@ macports-utils
 
 `macports-utils` contains the following utilities:
 
+  * `mp-checksums`: an utility to generate the `checksums` block of a
+    `Portfile`.
+
+  * `mp-upgrade-all`: an utility to update MacPorts, upgrade all the installed
+    packages and remove unused ports.
+
   * `port-gen`: an utility to create a Portfile from a template.
 
 Prerequisites
@@ -14,10 +20,11 @@ Prerequisites
 
   * `curl`
   * `openssl`
+  * `port`
   * `zsh`
 
 Getting macports-utils
------------------
+----------------------
 
 A user who whishes to build this package should get a [release
 tarball][release].  A release tarball contains everything a user needs to build
@@ -43,6 +50,45 @@ install this package.
 
 Usage
 -----
+
+mp-checksums
+------------
+
+The syntax of `mp-checksums` is the following:
+
+    $ mp-checksums (file)+
+    $ mp-checksums -h
+    $ mp-checksums -v
+
+The available options are:
+
+  * `-h`: to show a usage message.
+  * `-v`: to print the program version.
+
+`mp-checksums` accepts a list of files as a parameter and prints the
+corresponding `checksums` section:
+
+    $ mp-checksums my-file
+    checksums           rmd160 4d7cb3439d5ffbc82ddd1c560dad6ceb99e8a296 \
+                        sha256 d53c9d7e8b43e6b0ffe09272f4a10b17dd6691b8cabc1f21bf8b60f7f0522db8 \
+                        size   1918
+
+mp-upgrade-all
+--------------
+
+The syntax of `mp-upgrade-all` is the following:
+
+    $ mp-upgrade-all
+    $ mp-upgrade-all -h
+    $ mp-upgrade-all -v
+
+`mp-upgrade-all` performs the following operations:
+
+  * Invoking `port selfupdate`.
+  * Invoking `port upgrade outdated`.
+  * Invoking `port clean installed`.
+  * Invoking `port uninstall leaves inactive` until no matching ports are left.
+  * Invoking `port reclaim -d`.
 
 port-gen
 --------

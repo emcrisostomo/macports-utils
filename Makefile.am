@@ -18,8 +18,8 @@ ACLOCAL_AMFLAGS = -I m4
 dist_doc_DATA  = README.md README.gnu-build-system
 dist_doc_DATA += AUTHORS CONTRIBUTING.md COPYING LICENSE NEWS
 
-bin_SCRIPTS  = scripts/macports-checksums
-bin_SCRIPTS += scripts/macports-upgrade-all
+bin_SCRIPTS  = scripts/mp-checksums
+bin_SCRIPTS += scripts/mp-upgrade-all
 bin_SCRIPTS += scripts/port-gen
 CLEANFILES   = $(bin_SCRIPTS)
 

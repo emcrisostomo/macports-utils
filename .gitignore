@@ -113,7 +113,8 @@ version.texi
 
 # Template files
 Doxyfile
-scripts/macports-checksums
+scripts/mp-checksums
+scripts/mp-upgrade-all
 scripts/port-gen
 scripts/port-gen.in
 

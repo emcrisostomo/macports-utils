@@ -37,8 +37,8 @@ set -o errexit
 set -o nounset
 
 PROGNAME=${0:t}
-BUG_REPORT=@PACKAGE_BUGREPORT@
-PACKAGE_VERSION=@PACKAGE_VERSION@
+BUG_REPORT=enrico.m.crisostomo@gmail.com
+PACKAGE_VERSION=0.5.3
 
 typeset -a help_flag
 typeset -a version_flag
@@ -82,21 +82,6 @@ mp_print_usage()
   print -- "${PROGNAME} home page: <https://github.com/emcrisostomo/macports-utils>."
 }
 
-mp_parse_opts()
-{
-  while getopts ":" opt
-  do
-    case $opt in
-      \?)
-        >&2 print -- "Invalid option -${OPTARG}."
-        exit 1
-        ;;
-    esac
-  done
-
-  ARGS_PROCESSED=$((OPTIND - 1))
-}
-
 mp_health_checks()
 {
   mp_check_required_programs
@@ -127,31 +112,33 @@ checksums           rmd160 ${CHECKSUM_RMD160} \\
 EOF
 }
 
-# Main
-zparseopts -D \
-           h=help_flag    -help=help_flag         \
+function __main()
+{
+  zparseopts -D \
+             h=help_flag  -help=help_flag \
                           -version=version_flag
 
-if (( ${+help_flag[1]} > 0 ))
-then
-  mp_print_usage
-  exit 0
-fi
+  if (( ${+help_flag[1]} > 0 ))
+  then
+    mp_print_usage
+    exit 0
+  fi
 
-if (( ${+version_flag[1]} > 0 ))
-then
-  mp_print_version
-  exit 0
-fi
+  if (( ${+version_flag[1]} > 0 ))
+  then
+    mp_print_version
+    exit 0
+  fi
 
-mp_parse_opts $* && shift ${ARGS_PROCESSED}
+  mp_health_checks $*
 
-mp_health_checks $*
+  for i in $*
+  do
+    mp_calculate_checksums ${i}
+  done
+}
 
-for i in $*
-do
-  mp_calculate_checksums ${1}
-done
+__main $*
 
 # Local variables:
 # coding: utf-8
