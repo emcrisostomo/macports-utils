@@ -1,6 +1,10 @@
 NEWS
 ****
 
+New in 0.6.1:
+
+  * Fix typo in function name.
+
 New in 0.6.0:
 
   * Rename to mp-checksums.
