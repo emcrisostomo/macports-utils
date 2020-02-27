@@ -1,5 +1,5 @@
 #                                               -*- Autoconf -*-
-# Copyright (C) 2018 Enrico M. Crisostomo
+# Copyright (C) 2018-2020 Enrico M. Crisostomo
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -15,9 +15,9 @@
 #
 # Process this file with autoconf to produce a configure script.
 #
-dnl Copyright (C) 2018 Enrico M. Crisostomo
+dnl Copyright (C) 2018-2020 Enrico M. Crisostomo
 AC_PREREQ([2.69])
-AC_INIT([macports-utils], [0.6.1], [enrico.m.crisostomo@gmail.com])
+AC_INIT([macports-utils], [0.6.2], [enrico.m.crisostomo@gmail.com])
 AC_COPYRIGHT([2018 (C) Enrico M. Crisostomo])
 AC_REVISION([$Revision: 1.0.0$])
 AC_CONFIG_SRCDIR([scripts/port-gen.in.in])
