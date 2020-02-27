@@ -114,7 +114,7 @@ Bug reports can be sent directly to the authors.
 
 -----
 
-Copyright (c) 2018 Enrico Maria Crisostomo
+Copyright (c) 2018-2020 Enrico Maria Crisostomo
 
 All rights reserved.
 

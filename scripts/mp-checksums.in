@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # -*- coding: utf-8; tab-width: 2; indent-tabs-mode: nil; sh-basic-offset: 2; sh-indentation: 2; -*- vim:fenc=utf-8:et:sw=2:ts=2:sts=2
 #
-# Copyright (c) 2018 Enrico M. Crisostomo
+# Copyright (c) 2018-2020 Enrico M. Crisostomo
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ mp_check_required_programs()
 mp_print_version()
 {
   print -- "${PROGNAME} ${PACKAGE_VERSION}"
-  print -- "Copyright (C) 2018 Enrico M. Crisostomo"
+  print -- "Copyright (C) 2018-2020 Enrico M. Crisostomo"
   print -- "License: BSD-3-Clause <https://opensource.org/licenses/BSD-3-Clause/>."
   print -- "This is free software: you are free to change and redistribute it."
   print -- "There is NO WARRANTY, to the extent permitted by law."
@@ -107,9 +107,9 @@ mp_calculate_checksums()
   local CHECKSUM_SIZE=$(LC_ALL=C ls -l ${1} | awk '{ print $5; }')
 
   cat <<EOF
-checksums           rmd160 ${CHECKSUM_RMD160} \\
-                    sha256 ${CHECKSUM_SHA256} \\
-                    size   ${CHECKSUM_SIZE}
+checksums           rmd160  ${CHECKSUM_RMD160} \\
+                    sha256  ${CHECKSUM_SHA256} \\
+                    size    ${CHECKSUM_SIZE}
 EOF
 }
 
